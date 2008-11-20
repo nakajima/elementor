@@ -1,0 +1,79 @@
+h1. Elementor
+
+h2. Prettier element traversal for Nokogiri.
+
+Elementor lets you alias Nokogiri CSS searches with method
+names, returning an extended Nokogiri document ,upon which you
+can call these alias methods.
+
+To use it, include the @Elementor@ module, then call @elements@,
+pass it options then a block in which you'll specify your element
+names. The only option you have to specify currently is @:from@,
+which is the method that will be called to return a raw markup
+string to be parsed by Nokogiri.
+
+h3. Usage
+
+<pre>
+require 'open-uri'
+
+include Elementor
+
+def body
+  <<-HTML
+  <h1>This is the header</h1>
+  <div id="detail-section">
+    <span>This is a detail</span>
+    <span>So is this</span>
+    <span>Oh one more!</span>
+  </div>
+  HTML
+end
+
+doc = elements(:from => :body) do |tag|
+  tag.headers "h1"
+  tag.details "#detail-section span"
+end
+
+p doc.headers.map(&:text) # => ["This is the header"]
+p doc.details.map(&:text) # => ["This is a detail", "So is this", "Oh one more!"]
+</pre>
+
+h3. Useful Usage
+
+<pre>
+# I don't like testing views at this level from the
+# controller spec, but this is just an example. I'd
+# recommend using Elementor with whatever view test
+# setup you prefer.
+describe FoosController do
+  include Elementor
+
+  describe "#index" do
+    before(:each) do
+      @result = elements(:from => :body) do |doc|
+        doc.tags "ul#tag-cloud li"
+        doc.ajax_forms "form.ajaxified"
+        doc.user_links "ul#users li a"
+      end
+    end
+
+    it "renders tag cloud tags" do
+      @result.should have(52).tags
+    end
+
+    it "renders ajax forms" do
+      @result.should have(3).ajax_forms
+    end
+
+    it "renders user links" do
+      @result.should have(6).user_links
+    end
+  end
+end
+</pre>
+
+h4. Todo
+
+* Filtering by content
+* Maybe a better way of getting raw markup strings?
