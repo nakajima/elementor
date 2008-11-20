@@ -18,10 +18,6 @@ module Elementor
         def method_missing(sym, *args, &block)
           @this.try(sym, *args, &block) || @context.try(sym, *args, &block) || super
         end
-        
-        def self.method_missing(sym, *args)
-          p sym
-        end
       end
     end
   
