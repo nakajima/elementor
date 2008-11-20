@@ -1,6 +1,6 @@
 h1. Elementor
 
-h2. Prettier element traversal for Nokogiri.
+h2. Prettier element traversal with Nokogiri.
 
 Elementor lets you alias Nokogiri CSS searches with method
 names, returning an extended Nokogiri document ,upon which you
