@@ -3,8 +3,9 @@ $LOAD_PATH << File.dirname(__FILE__) + '/elementor'
 
 require 'rubygems'
 require 'nokogiri'
-require 'nakajima'
 require 'kernel'
+require 'object'
+require 'symbol'
 require 'result'
 require 'element_set'
 

@@ -15,9 +15,11 @@ Gem::Specification.new do |s|
     "lib/elementor/element_set.rb",
     "lib/elementor/result.rb",
     "lib/core_ext",
-    "lib/core_ext/kernel.rb"
+    "lib/core_ext/object.rb",
+    "lib/core_ext/kernel.rb",
+    "lib/core_ext/symbol.rb"
   ]
-  s.homepage = %q{http://github.com/nakajima/elementor}
+  s.homepage = %q{http://github.com/pivotal/elementor}
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.0}
   s.summary = %q{Prettier element traversal with Nokogiri}
@@ -27,14 +29,11 @@ Gem::Specification.new do |s|
     s.specification_version = 2
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<nakajima>, [">= 0"])
       s.add_runtime_dependency(%q<nokogiri>, [">= 0"])
     else
-      s.add_dependency(%q<nakajima>, [">= 0"])
       s.add_dependency(%q<nokogiri>, [">= 0"])
     end
   else
-    s.add_dependency(%q<nakajima>, [">= 0"])
     s.add_dependency(%q<nokogiri>, [">= 0"])
   end
 end
