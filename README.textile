@@ -36,13 +36,19 @@ doc = elements(:from => :body) do |tag|
   tag.details "#detail-section span"
 end
 
-p doc.headers.map(&:text) # => ["This is the header"]
-p doc.details.map(&:text) # => ["This is a detail", "So is this", "Oh one more!"]
+# The standard
+p doc.headers # => ["This is the header"]
+p doc.details # => ["This is a detail", "So is this", "Oh one more!"]
+
+# Using the `with_text` filter
+p doc.details.with_text("This is a detail") # => ["This is a detail"]
 </pre>
 
 h3. Useful Usage
 
 <pre>
+require 'elementor/spec'
+  
 # I don't like testing views at this level from the
 # controller spec, but this is just an example. I'd
 # recommend using Elementor with whatever view test
@@ -62,7 +68,7 @@ describe FoosController do
     it "renders tag cloud tags" do
       @result.should have(52).tags
     end
-
+    
     it "renders ajax forms" do
       @result.should have(3).ajax_forms
     end
@@ -70,11 +76,16 @@ describe FoosController do
     it "renders user links" do
       @result.should have(6).user_links
     end
+    
+    # this one uses the `with_text` filter
+    it "renders user link for Pat" do
+      @result.should have(1).user_links.with_text("Pat")
+    end
   end
 end
 </pre>
 
 h4. Todo
 
-* Filtering by content
+* Regexes for @with_text@
 * Maybe a better way of getting raw markup strings?

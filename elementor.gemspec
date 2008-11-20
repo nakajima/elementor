@@ -8,7 +8,15 @@ Gem::Specification.new do |s|
   s.authors = ["Pat Nakajima"]
   s.date = %q{2008-11-19}
   s.email = %q{patnakajima@gmail.com}
-  s.files = ["lib/elementor.rb"]
+  s.files = [
+    "lib/elementor",
+    "lib/elementor.rb",
+    "lib/elementor/spec.rb",
+    "lib/elementor/element_set.rb",
+    "lib/elementor/result.rb",
+    "lib/core_ext",
+    "lib/core_ext/kernel.rb"
+  ]
   s.homepage = %q{http://github.com/nakajima/elementor}
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.0}
