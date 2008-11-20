@@ -66,17 +66,29 @@ describe Elementor do
       end
       
       describe ":from option" do
-        before do
+        it "determines which method should be called to get the markup" do
           meta_def(:source) { HTML.dup }
-          
           @result = elements(:from => :body) do |tag|
             tag.header "h1"
             tag.tags "#tag-cloud a"
             tag.bodies "body"
           end
+          
+          result.should have(1).header
+          result.should have(4).tags
         end
         
-        it "determines which method should be called to get the markup" do
+        it "works when the HTML isn't present until after the #elements call" do
+          meta_def(:deferred_source) { nil }
+          
+          @result = elements(:from => :deferred_source) do |tag|
+            tag.header "h1"
+            tag.tags "#tag-cloud a"
+            tag.bodies "body"
+          end
+          
+          meta_def(:deferred_source) { HTML.dup }
+          
           result.should have(1).header
           result.should have(4).tags
         end

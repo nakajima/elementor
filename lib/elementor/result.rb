@@ -1,6 +1,9 @@
 module Elementor
   class Result
-    def initialize(context, &block)
+    attr_reader :context, :opts
+    
+    def initialize(context, opts={}, &block)
+      @opts = opts
       @context = context
       block.call(naming_context)
     end
@@ -14,9 +17,9 @@ module Elementor
     end
 
     def dispatcher
-      @dispatcher ||= blank_context(:this => self, :context => @context) do
+      @dispatcher ||= blank_context(:this => self, :doc => doc) do
         def method_missing(sym, *args, &block)
-          @this.try(sym, *args, &block) || @context.try(sym, *args, &block) || super
+          @this.try(sym, *args, &block) || @doc.try(sym, *args, &block) || super
         end
       end
     end
@@ -24,7 +27,7 @@ module Elementor
     def define_elements!
       element_names.each do |name, selector|
         meta_def(name) do |*mutators|
-          set = ElementSet.new(@context.search(selector).to_ary)
+          set = ElementSet.new(doc.search(selector).to_ary)
           mutators.empty? ? set : mutators.inject(set) { |result, fn| fn[result] }
         end
       end
@@ -32,6 +35,12 @@ module Elementor
     
     def element_names
       @element_names ||= { }
+    end
+    
+    private
+    
+    def doc
+      @doc ||= Nokogiri(context.send(opts[:from] || :body)) rescue nil
     end
   end
 end

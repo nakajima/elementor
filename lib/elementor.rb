@@ -10,9 +10,7 @@ require 'element_set'
 
 module Elementor
   def elements(opts={}, &block)
-    opts[:from] ||= :body
-    doc = Nokogiri(send(opts[:from]))
-    namer = Result.new(doc, &block)
+    namer = Result.new(self, opts, &block)
     namer.define_elements!
     namer.dispatcher
   end
