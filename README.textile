@@ -15,7 +15,8 @@ string to be parsed by Nokogiri.
 h3. Usage
 
 <pre>
-require 'open-uri'
+require 'rubygems'
+require 'elementor'
 
 include Elementor
 
