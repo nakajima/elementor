@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
     "lib/core_ext/kernel.rb",
     "lib/core_ext/symbol.rb"
   ]
-  s.homepage = %q{http://github.com/pivotal/elementor}
+  s.homepage = %q{http://github.com/nakajima/elementor}
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.0}
   s.summary = %q{Prettier element traversal with Nokogiri}

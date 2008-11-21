@@ -85,6 +85,8 @@ describe FoosController do
 end
 </pre>
 
+h4. "View the CI build.":http://ci.patnakajima.com/elementor
+
 h4. Todo
 
 * Regexes for @with_text@
