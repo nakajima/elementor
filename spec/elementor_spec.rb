@@ -6,9 +6,9 @@ HTML = Nokogiri::HTML::Builder.new {
     body {
       h1("A header")
       div(:id => "tag-cloud") {
-        a(:href => '#foo') { text "Foo" }
+        a(:href => '#foo', :class => 'even') { text "Foo" }
         a(:href => '#bar') { text "Bar" }
-        a(:href => '#fizz') { text "Fizz" }
+        a(:href => '#fizz', :class => 'even') { text "Fizz" }
         a(:href => '#buzz') { text "Buzz" }
       }
     }
@@ -127,22 +127,65 @@ describe Elementor do
         end
       end
       
-      describe "#with_text" do
-        it "limits results by text" do
-          result.tags.with_text("Foo").should have(1).node
+      describe "filters" do
+        describe "#with_text" do
+          it "limits results by text" do
+            result.tags.with_text("Foo").should have(1).node
+          end
+          
+          it "allows chaining" do
+            result.tags.with_text('zz').with_attrs(:class => "even").should have(1).node
+          end
+
+          describe "as an rspec matcher" do
+            it "works with no matches" do
+              result.should have(0).tags.with_text("Wee")
+            end
+
+            it "works with 1 match" do
+              result.should have(1).tags.with_text("Foo")
+            end
+
+            it "works with many matches" do
+              result.should have(2).tags.with_text("zz")
+            end
+            
+            it "allows chaining" do
+              result.should have(1).tags.with_text("zz").with_attrs(:class => "even")
+            end
+          end
         end
         
-        describe "as an rspec matcher" do
-          it "works with no matches" do
-            result.should have(0).tags.with_text("Wee")
+        describe "#with_attrs" do
+          it "limits results by one attribute" do
+            result.tags.with_attrs(:href => '#foo').should have(1).node
+            result.tags.with_attrs(:class => 'even').should have(2).nodes
           end
           
-          it "works with 1 match" do
-            result.should have(1).tags.with_text("Foo")
+          it "limits results by multiple attributes" do
+            result.tags.with_attrs(:class => 'even', :href => '#foo').should have(1).node
           end
           
-          it "works with many matches" do
-            result.should have(2).tags.with_text("zz")
+          it "allows chaining" do
+            result.tags.with_attrs(:class => 'even').with_text('Fizz').should have(1).node
+          end
+          
+          describe "as an rspec matcher" do
+            it "works with no matches" do
+              result.should have(0).tags.with_attrs(:href => '#Wee')
+            end
+
+            it "works with 1 match" do
+              result.should have(1).tags.with_attrs(:href => '#foo')
+            end
+
+            it "works with many matches" do
+              result.should have(2).tags.with_attrs(:class => 'even')
+            end
+            
+            it "allows chaining" do
+              result.should have(1).tags.with_attrs(:class => "even").with_text('Fizz')
+            end
           end
         end
       end

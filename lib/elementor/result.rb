@@ -33,9 +33,9 @@ module Elementor
   
     def define_elements!
       element_names.each do |name, selector|
-        meta_def(name) do |*mutators|
+        meta_def(name) do |*filters|
           set = ElementSet.new(doc.search(selector).to_ary)
-          mutators.empty? ? set : mutators.inject(set) { |result, fn| fn[result] }
+          filters.empty? ? set : filters.inject(set) { |result, fn| fn[result] }
         end
       end
     end
