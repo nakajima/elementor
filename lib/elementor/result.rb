@@ -8,6 +8,10 @@ module Elementor
       block.call(naming_context)
     end
     
+    def parse!(markup)
+      doc(markup)
+    end
+    
     def naming_context
       @naming_context ||= blank_context(:this => self) do
         def method_missing(sym, *args)
@@ -39,8 +43,9 @@ module Elementor
     
     private
     
-    def doc
-      @doc ||= Nokogiri(context.send(opts[:from] || :body)) rescue nil
+    def doc(markup=nil)
+      @doc = nil if markup
+      @doc ||= Nokogiri(markup || context.send(opts[:from] || :body)) rescue nil
     end
   end
 end

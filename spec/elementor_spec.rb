@@ -113,6 +113,15 @@ describe Elementor do
           end
         end
       end
+      
+      describe "#parse!" do
+        it "parses new markup" do
+          result.should have(4).tags
+          result.parse!(%(<h1>Fred</h1>))
+          result.should have(0).tags
+          result.should have(1).header.with_text("Fred")
+        end
+      end
     end
   end
 end
