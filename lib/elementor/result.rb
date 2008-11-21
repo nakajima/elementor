@@ -45,7 +45,15 @@ module Elementor
     
     def doc(markup=nil)
       @doc = nil if markup
-      @doc ||= Nokogiri(markup || context.send(opts[:from] || :body)) rescue nil
+      begin
+        @doc ||= Nokogiri(markup || content)
+      rescue => e
+        raise e
+      end
+    end
+    
+    def content
+      context.send(opts[:from] || :body)
     end
   end
 end

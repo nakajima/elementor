@@ -92,6 +92,24 @@ describe Elementor do
           result.should have(1).header
           result.should have(4).tags
         end
+        
+        describe "error handling" do
+          it "re-raises errors that occur when :from blows up" do
+            view = Class.new { def render; send(:foo!) end }.new
+            
+            meta_def(:whoops!) { view.render }
+
+            proc {
+              @result = elements(:from => :whoops!) do |tag|
+                tag.header "h1"
+                tag.tags "#tag-cloud a"
+              end
+            
+              result.should have(0).header
+            }.should raise_error(NoMethodError)
+          end
+        end
+        
       end
       
       describe "#with_text" do
