@@ -175,6 +175,10 @@ describe Elementor do
             result.tags.with_text("Foo").should have(1).node
           end
           
+          it "limits results by regex" do
+            result.tags.with_text(/foo|bar/i).should have(2).nodes
+          end
+          
           it "allows chaining" do
             result.tags.with_text('zz').with_attrs(:class => "even").should have(1).node
           end
@@ -199,13 +203,25 @@ describe Elementor do
         end
         
         describe "#with_attrs" do
-          it "limits results by one attribute" do
-            result.tags.with_attrs(:href => '#foo').should have(1).node
-            result.tags.with_attrs(:class => 'even').should have(2).nodes
+          context "using string values" do
+            it "limits results by one attribute" do
+              result.tags.with_attrs(:href => '#foo').should have(1).node
+              result.tags.with_attrs(:class => 'even').should have(2).nodes
+            end
+          
+            it "limits results by multiple attributes" do
+              result.tags.with_attrs(:class => 'even', :href => '#foo').should have(1).node
+            end
           end
           
-          it "limits results by multiple attributes" do
-            result.tags.with_attrs(:class => 'even', :href => '#foo').should have(1).node
+          context "using regex values" do
+            it "limits results by one attribute" do
+              result.tags.with_attrs(:href => /#(foo|bar)/).should have(2).node
+            end
+          
+            it "limits results by multiple attributes" do
+              result.tags.with_attrs(:class => /even/, :href => /#(foo|bar)/).should have(1).node
+            end
           end
           
           it "allows chaining" do

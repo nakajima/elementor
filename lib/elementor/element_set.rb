@@ -2,15 +2,23 @@ module Elementor
   class ElementSet < Array
     attr_accessor :result, :selector
     
-    def with_text(str)
+    def with_text(matcher)
       replace(select { |item|
-        item.text.include?(str)
+        case matcher
+        when Regexp then item.text =~ matcher
+        when String then item.text.include?(matcher)
+        end
       }) ; self
     end
     
     def with_attrs(options={})
       replace(select { |item|
-        options.all? { |key, value| item[key.to_s] == value }
+        options.all? { |key, value|
+          case value
+          when Regexp then item[key.to_s] =~ value
+          when String then item[key.to_s] == value
+          end
+        }
       }) ; self
     end
     
