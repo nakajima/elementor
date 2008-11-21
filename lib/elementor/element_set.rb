@@ -3,23 +3,23 @@ module Elementor
     attr_accessor :result, :selector
     
     def with_text(matcher)
-      replace(select { |item|
+      filter do |item|
         case matcher
         when Regexp then item.text =~ matcher
         when String then item.text.include?(matcher)
         end
-      }) ; self
+      end
     end
     
     def with_attrs(options={})
-      replace(select { |item|
-        options.all? { |key, value|
+      filter do |item|
+        options.all? do |key, value|
           case value
           when Regexp then item[key.to_s] =~ value
           when String then item[key.to_s] == value
           end
-        }
-      }) ; self
+        end
+      end
     end
     
     def inspect
@@ -36,6 +36,12 @@ module Elementor
     
     def doc
       result.doc.search(selector)
+    end
+    
+    private
+    
+    def filter(&block)
+      replace(select(&block)) ; return self
     end
   end
 end
