@@ -43,6 +43,42 @@ describe Elementor do
       end
     end
     
+    describe "error handling" do
+      context  "before methods have been called on result object" do
+        it "swallows errors" do
+          view = Class.new { def render; send(:foo!) end }.new
+        
+          meta_def(:whoops!) { view.render }
+    
+          proc {
+            @result = elements(:from => :whoops!) do |tag|
+              tag.header "h1"
+              tag.tags "#tag-cloud a"
+            end
+    
+            @result.instance_variable_get("@this").doc
+          }.should_not raise_error
+        end
+      end
+      
+      context "after methods have been called on result object" do
+        it "re-raises errors that occur when :from blows up" do
+          view = Class.new { def render; send(:foo!) end }.new
+        
+          meta_def(:whoops!) { view.render }
+    
+          proc {
+            @result = elements(:from => :whoops!) do |tag|
+              tag.header "h1"
+              tag.tags "#tag-cloud a"
+            end
+    
+            result.should have(0).header
+          }.should raise_error(NoMethodError)
+        end
+      end
+    end
+    
     context "with elements defined" do
       before(:each) do
         @result = elements(:from => :body) do |tag|
@@ -67,7 +103,6 @@ describe Elementor do
       
       describe ":from option" do
         it "determines which method should be called to get the markup" do
-          meta_def(:source) { HTML.dup }
           @result = elements(:from => :body) do |tag|
             tag.header "h1"
             tag.tags "#tag-cloud a"
@@ -79,15 +114,13 @@ describe Elementor do
         end
         
         it "works when the HTML isn't present until after the #elements call" do
-          meta_def(:deferred_source) { nil }
+          mock(self).deferred_source.once.returns(HTML.dup)
           
           @result = elements(:from => :deferred_source) do |tag|
             tag.header "h1"
             tag.tags "#tag-cloud a"
             tag.bodies "body"
           end
-          
-          meta_def(:deferred_source) { HTML.dup }
           
           result.should have(1).header
           result.should have(4).tags

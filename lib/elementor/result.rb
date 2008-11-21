@@ -1,10 +1,12 @@
 module Elementor
   class Result
+    attr_writer :doc_ready
     attr_reader :context, :opts
     
     def initialize(context, opts={}, &block)
       @opts = opts
       @context = context
+      @doc_ready = false
       block.call(naming_context)
     end
     
@@ -21,9 +23,10 @@ module Elementor
     end
 
     def dispatcher
-      @dispatcher ||= blank_context(:this => self, :doc => doc) do
+      @dispatcher ||= blank_context(:this => self) do
         def method_missing(sym, *args, &block)
-          @this.try(sym, *args, &block) || @doc.try(sym, *args, &block) || super
+          @this.doc_ready = true
+          @this.try(sym, *args, &block) || @this.doc.try(sym, *args, &block) || super
         end
       end
     end
@@ -41,11 +44,20 @@ module Elementor
       @element_names ||= { }
     end
     
-    private
-    
     def doc(markup=nil)
-      @doc = nil if markup
-      @doc ||= Nokogiri(markup || context.send(opts[:from] || :body)) rescue nil
+      if html = markup || content
+        @doc = nil if markup
+        @doc ||= Nokogiri(html)
+      end
+    end
+    
+    def content
+      return unless doc_ready?
+      @content ||= context.send(opts[:from] || :body)
+    end
+    
+    def doc_ready?
+      @doc_ready
     end
   end
 end
