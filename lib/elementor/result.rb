@@ -34,10 +34,17 @@ module Elementor
     def define_elements!
       element_names.each do |name, selector|
         meta_def(name) do |*filters|
-          set = ElementSet.new(doc.search(selector).to_ary)
+          set = ElementSet.new scope(filters).search(selector)
+          set.result = self
+          set.selector = selector
           filters.empty? ? set : filters.inject(set) { |result, fn| fn[result] }
         end
       end
+    end
+    
+    def scope(filters)
+      scope = filters.first.is_a?(Proc) ? nil : filters.shift
+      scope || doc
     end
     
     def element_names

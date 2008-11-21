@@ -5,11 +5,16 @@ HTML = Nokogiri::HTML::Builder.new {
     head { title("This is the title") }
     body {
       h1("A header")
-      div(:id => "tag-cloud") {
+      div(:class => "tag-cloud") {
         a(:href => '#foo', :class => 'even') { text "Foo" }
         a(:href => '#bar') { text "Bar" }
-        a(:href => '#fizz', :class => 'even') { text "Fizz" }
-        a(:href => '#buzz') { text "Buzz" }
+      }
+      div(:id => "user-links") {
+        h1("User Link Section")
+        div(:class => "tag-cloud") {
+          a(:href => '#fizz', :class => 'even') { text "Fizz" }
+          a(:href => '#buzz') { text "Buzz" }
+        }
       }
     }
   }
@@ -26,11 +31,11 @@ describe Elementor do
   
   describe "the html" do
     it "has tags" do
-      Nokogiri(body).search('#tag-cloud a').should have(4).nodes
+      Nokogiri(body).search('.tag-cloud a').should have(4).nodes
     end
     
-    it "has a header" do
-      Nokogiri(body).search('h1').should have(1).nodes
+    it "has a headers" do
+      Nokogiri(body).search('h1').should have(2).nodes
     end
   end
   
@@ -52,8 +57,9 @@ describe Elementor do
     
           proc {
             @result = elements(:from => :whoops!) do |tag|
-              tag.header "h1"
-              tag.tags "#tag-cloud a"
+              tag.headers "h1"
+              tag.tags ".tag-cloud a"
+              tag.user_links "#user-links"
             end
     
             @result.instance_variable_get("@this").doc
@@ -69,11 +75,12 @@ describe Elementor do
     
           proc {
             @result = elements(:from => :whoops!) do |tag|
-              tag.header "h1"
-              tag.tags "#tag-cloud a"
+              tag.headers "h1"
+              tag.tags ".tag-cloud a"
+              tag.user_links "#user-links"
             end
     
-            result.should have(0).header
+            result.should have(0).headers
           }.should raise_error(NoMethodError)
         end
       end
@@ -82,34 +89,69 @@ describe Elementor do
     context "with elements defined" do
       before(:each) do
         @result = elements(:from => :body) do |tag|
-          tag.header "h1"
-          tag.tags "#tag-cloud a"
+          tag.headers "h1"
+          tag.tags ".tag-cloud a"
+          tag.user_links "#user-links"
         end
       end
       
       it "can find tags" do
-        result.should have(1).header
+        result.should have(2).headers
         result.should have(4).tags
       end
       
       it "can still use old Nokogiri traversal methods" do
-        result.search('#tag-cloud a').should have(4).nodes
-        result.search('h1').should have(1).nodes
+        result.search('.tag-cloud a').should have(4).nodes
+        result.search('h1').should have(2).nodes
       end
       
       it "creates more readable inspect" do
-        result.header.inspect.should == "[\"A header\"]"
+        result.headers.inspect.should == "[\"A header\", \"User Link Section\"]"
+      end
+      
+      describe "chaining selectors" do
+        it "can chain selector aliases" do
+          result.user_links.headers.should have(1).node
+          result.user_links.tags.should have(2).nodes
+        end
+        
+        it "works with with_text filter" do
+          result.user_links.tags.with_text('Fizz').should have(1).node
+        end
+        
+        it "works with with_attrs filter" do
+          result.user_links.tags.with_attrs(:class => 'even').should have(1).node          
+        end
+        
+        describe "as an rspec matcher" do
+          it "works with no matches" do
+            result.tags.should have(0).user_links
+          end
+
+          it "works with 1 match" do
+            result.user_links.should have(1).headers
+          end
+          
+          it "works with many matches" do
+            result.user_links.should have(2).tags
+          end
+          
+          it "allows chaining" do
+            result.user_links.should have(1).tags.with_attrs(:class => "even").with_text('Fizz')
+          end
+        end
       end
       
       describe ":from option" do
         it "determines which method should be called to get the markup" do
           @result = elements(:from => :body) do |tag|
-            tag.header "h1"
-            tag.tags "#tag-cloud a"
+            tag.headers "h1"
+            tag.tags ".tag-cloud a"
+            tag.user_links "#user-links"
             tag.bodies "body"
           end
           
-          result.should have(1).header
+          result.should have(2).headers
           result.should have(4).tags
         end
         
@@ -117,12 +159,12 @@ describe Elementor do
           mock(self).deferred_source.once.returns(HTML.dup)
           
           @result = elements(:from => :deferred_source) do |tag|
-            tag.header "h1"
-            tag.tags "#tag-cloud a"
+            tag.headers "h1"
+            tag.tags ".tag-cloud a"
             tag.bodies "body"
           end
           
-          result.should have(1).header
+          result.should have(2).headers
           result.should have(4).tags
         end
       end
@@ -195,7 +237,7 @@ describe Elementor do
           result.should have(4).tags
           result.parse!(%(<h1>Fred</h1>))
           result.should have(0).tags
-          result.should have(1).header.with_text("Fred")
+          result.should have(1).headers.with_text("Fred")
         end
       end
     end
