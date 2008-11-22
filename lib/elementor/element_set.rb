@@ -34,11 +34,11 @@ module Elementor
       result.respond_to?(sym) || super
     end
     
+    private
+    
     def doc
       result.doc.search(selector)
     end
-    
-    private
     
     def filter(&block)
       replace(select(&block)) ; return self

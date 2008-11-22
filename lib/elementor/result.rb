@@ -8,20 +8,13 @@ module Elementor
       @context = context
       @doc_ready = false
       block.call(naming_context)
+      define_elements!
     end
     
     def parse!(markup)
       doc(markup)
     end
     
-    def naming_context
-      @naming_context ||= blank_context(:this => self) do
-        def method_missing(sym, *args)
-          @this.element_names[sym] = *args
-        end
-      end
-    end
-
     def dispatcher
       @dispatcher ||= blank_context(:this => self) do
         def method_missing(sym, *args, &block)
@@ -31,6 +24,31 @@ module Elementor
       end
     end
   
+    def element_names
+      @element_names ||= { }
+    end
+
+    def doc(markup=nil)
+      if html = markup || content
+        @doc = nil if markup
+        @doc ||= Nokogiri(html)
+      end
+    end
+    
+    def doc_ready?
+      @doc_ready
+    end
+
+    private
+    
+    def naming_context
+      @naming_context ||= blank_context(:this => self) do
+        def method_missing(sym, *args)
+          @this.element_names[sym] = *args
+        end
+      end
+    end
+    
     def define_elements!
       element_names.each do |name, selector|
         meta_def(name) do |*filters|
@@ -47,24 +65,9 @@ module Elementor
       scope || doc
     end
     
-    def element_names
-      @element_names ||= { }
-    end
-    
-    def doc(markup=nil)
-      if html = markup || content
-        @doc = nil if markup
-        @doc ||= Nokogiri(html)
-      end
-    end
-    
     def content
       return unless doc_ready?
       @content ||= context.send(opts[:from] || :body)
-    end
-    
-    def doc_ready?
-      @doc_ready
     end
   end
 end

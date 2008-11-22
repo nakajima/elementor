@@ -25,6 +25,14 @@ describe "blank_context" do
     @object = @klass.new
   end
   
+  it "allows a white list regex" do
+    proc {
+      context = blank_context(/=/)
+      context == context
+      context === context
+    }.should_not raise_error
+  end
+  
   it "assigns instance variables in blank class from options" do
     object.blank.instance_eval { @context }.should == object
   end
