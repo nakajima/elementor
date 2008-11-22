@@ -11,10 +11,14 @@ module Elementor
       define_elements!
     end
     
+    # Allows for the parsing of raw markup that doesn't come
+    # from the :from option.
     def parse!(markup)
       doc(markup)
     end
     
+    # Returns a blank slate object that delegates to either an
+    # instance of Result or the original Nokogiri doc.
     def dispatcher
       @dispatcher ||= blank_context(:this => self) do
         def method_missing(sym, *args, &block)
@@ -23,11 +27,15 @@ module Elementor
         end
       end
     end
-  
+
+    # The list of name/selector pairs you specify in the
+    # elements block.
     def element_names
       @element_names ||= { }
     end
 
+    # Returns the raw Nokogiri doc once a method has been called
+    # on the dispatcher. Up until that point, returns nil.
     def doc(markup=nil)
       if html = markup || content
         @doc = nil if markup
@@ -35,12 +43,15 @@ module Elementor
       end
     end
     
+    # Indicates whether or not the dispatcher has received messages,
+    # meaning the content method can be called.
     def doc_ready?
       @doc_ready
     end
 
     private
     
+    # Blank slate context for defining element names.
     def naming_context
       @naming_context ||= blank_context(:this => self) do
         def method_missing(sym, *args)
@@ -49,6 +60,8 @@ module Elementor
       end
     end
     
+    # Takes element names and defines methods that return ElementSet
+    # objects with can be chained and filtered.
     def define_elements!
       element_names.each do |name, selector|
         meta_def(name) do |*filters|
@@ -60,6 +73,8 @@ module Elementor
       end
     end
     
+    # Enables the chaining of element selector methods to only search
+    # within the scope of a certain ElementSet.
     def scope(filters)
       scope = filters.first.is_a?(Proc) ? nil : filters.shift
       scope || doc

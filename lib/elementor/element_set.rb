@@ -1,7 +1,11 @@
 module Elementor
+  # ElementSet objects wrap a Nokogiri #search result and
+  # add additional functionality such as chained filtering.
   class ElementSet < Array
     attr_accessor :result, :selector
     
+    # A simple filter for selecting only elements with content
+    # that either includes a String passed in, or matches a Regexp.
     def with_text(matcher)
       filter do |item|
         case matcher
@@ -11,6 +15,7 @@ module Elementor
       end
     end
     
+    # Attribute filtering using hashes. See the specs for examples.
     def with_attrs(options={})
       filter do |item|
         options.all? do |key, value|
