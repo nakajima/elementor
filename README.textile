@@ -46,7 +46,10 @@ p doc.details.with_text("This is a detail") # => ["This is a detail"]
 
 h3. Useful Usage
 
+(separate from above example)
+
 <pre>
+require 'elementor'
 require 'elementor/spec'
   
 # I don't like testing views at this level from the
@@ -81,6 +84,11 @@ describe FoosController do
     it "renders user link for Pat" do
       @result.should have(1).user_links.with_text("Pat")
     end
+    
+    # this one uses the `with_attrs` filter
+    it "renders active user links" do
+      @result.should have(1).user_links.with_attrs(:class => /active/)
+    end
   end
 end
 </pre>
@@ -89,5 +97,4 @@ h4. "View the CI build.":http://ci.patnakajima.com/elementor
 
 h4. Todo
 
-* Regexes for @with_text@
 * Maybe a better way of getting raw markup strings?
