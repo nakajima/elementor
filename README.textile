@@ -97,4 +97,5 @@ h4. "View the CI build.":http://ci.patnakajima.com/elementor
 
 h4. Todo
 
+* Allow chaining of filter results
 * Maybe a better way of getting raw markup strings?
