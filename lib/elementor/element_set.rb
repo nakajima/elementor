@@ -28,7 +28,7 @@ module Elementor
     end
 
     def method_missing(sym, *args, &block)
-      result.try(sym, doc, *(args + filters)) || super
+      result.try(sym, doc, *args) || super
     end
     
     def respond_to?(sym)

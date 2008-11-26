@@ -68,7 +68,6 @@ module Elementor
           set = ElementSet.new scope(args).search(selector)
           set.selector = selector
           set.result = self
-          set.filters = args.extract_filters! # parent filters
           args.empty? ? set : args.inject(set) { |result, fn| fn[result] }
         end
       end
