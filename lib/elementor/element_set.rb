@@ -2,7 +2,7 @@ module Elementor
   # ElementSet objects wrap a Nokogiri #search result and
   # add additional functionality such as chained filtering.
   class ElementSet < Array
-    attr_accessor :result, :selector
+    attr_accessor :result, :selector, :filters
     
     # A simple filter for selecting only elements with content
     # that either includes a String passed in, or matches a Regexp.
@@ -28,11 +28,15 @@ module Elementor
     end
 
     def method_missing(sym, *args, &block)
-      result.try(sym, doc, *args) || super
+      result.try(sym, doc, *(args + filters)) || super
     end
     
     def respond_to?(sym)
       result.respond_to?(sym) || super
+    end
+    
+    def filters=(args)
+      args.each { |fn| filter(&fn) }
     end
     
     private
@@ -42,7 +46,12 @@ module Elementor
     end
     
     def filter(&block)
+      filters.push Filter.new(&block)
       replace(select(&block)) ; return self
+    end
+    
+    def filters
+      @filters ||= []
     end
   end
 end

@@ -7,6 +7,7 @@ require 'array'
 require 'kernel'
 require 'object'
 require 'symbol'
+require 'filter'
 require 'result'
 require 'element_set'
 

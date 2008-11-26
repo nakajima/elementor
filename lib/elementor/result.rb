@@ -64,19 +64,20 @@ module Elementor
     # objects with can be chained and filtered.
     def define_elements!
       element_names.each do |name, selector|
-        meta_def(name) do |*filters|
-          set = ElementSet.new scope(filters).search(selector)
-          set.result = self
+        meta_def(name) do |*args|
+          set = ElementSet.new scope(args).search(selector)
           set.selector = selector
-          filters.empty? ? set : filters.inject(set) { |result, fn| fn[result] }
+          set.result = self
+          set.filters = args.extract_filters! # parent filters
+          args.empty? ? set : args.inject(set) { |result, fn| fn[result] }
         end
       end
     end
     
     # Enables the chaining of element selector methods to only search
     # within the scope of a certain ElementSet.
-    def scope(filters)
-      scope = filters.first.is_a?(Proc) ? nil : filters.shift
+    def scope(args)
+      scope = args.extract_scope!
       scope || doc
     end
     

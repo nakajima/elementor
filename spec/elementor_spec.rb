@@ -144,6 +144,7 @@ describe Elementor do
           end
           
           it "allows chaining with selector aliases" do
+            p result.tag_clouds.with_text('Fizz').tags
             result.tag_clouds.with_text('Fizz').tags.should have(2).nodes
           end
 
