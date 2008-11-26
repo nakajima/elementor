@@ -1,4 +1,9 @@
 class Object
+  def tap
+    yield self
+    self
+  end
+  
   def try(sym, *args, &block)
     respond_to?(sym) ? send(sym, *args, &block) : nil
   end

@@ -1,8 +1,10 @@
 module Elementor
   # ElementSet objects wrap a Nokogiri #search result and
   # add additional functionality such as chained filtering.
-  class ElementSet < Array
-    attr_accessor :result, :selector
+  class ElementSet
+    instance_methods.each { |m| undef_method(m) unless m =~ /__/ }
+    
+    attr_accessor :result, :selector, :scope
     
     # A simple filter for selecting only elements with content
     # that either includes a String passed in, or matches a Regexp.
@@ -28,21 +30,35 @@ module Elementor
     end
 
     def method_missing(sym, *args, &block)
-      result.try(sym, doc, *args) || super
+      filtered_nodes.try(sym, *args, &block) || result.try(sym, doc, *args) || super
     end
     
     def respond_to?(sym)
-      result.respond_to?(sym) || super
+      filtered_nodes.respond_to?(sym) || result.respond_to?(sym) || super
+    end
+    
+    def filters
+      @filters ||= []
     end
     
     private
     
     def doc
-      result.doc.search(selector)
+      scope.search(selector)
+    end
+    
+    def filtered_nodes
+      doc.to_a.flatten.tap do |set|
+        set.each do |node|
+          set.delete(node) unless filters.all? { |fn| fn.call(node) }
+        end
+      end.compact
     end
     
     def filter(&block)
-      replace(select(&block)) ; return self
+      filters.push(block)
+      filtered_nodes
+      return self
     end
   end
 end

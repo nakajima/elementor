@@ -65,10 +65,12 @@ module Elementor
     def define_elements!
       element_names.each do |name, selector|
         meta_def(name) do |*filters|
-          set = ElementSet.new scope(filters).search(selector)
+          set = ElementSet.new
+          set.scope = scope(filters)
           set.result = self
           set.selector = selector
-          filters.empty? ? set : filters.inject(set) { |result, fn| fn[result] }
+          filters.each { |fn| fn[set] }
+          set
         end
       end
     end
