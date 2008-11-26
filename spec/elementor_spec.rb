@@ -1,19 +1,19 @@
-require 'spec/spec_helper'
+require File.dirname(__FILE__) + '/spec_helper'
 
 HTML = Nokogiri::HTML::Builder.new {
   html {
     head { title("This is the title") }
     body {
       h1("A header")
-      div(:class => "tag-cloud") {
-        a(:href => '#foo', :class => 'even') { text "Foo" }
-        a(:href => '#bar') { text "Bar" }
+      div(:class => "tag-cloud", :rel => "other") {
+        a(:href => '#foo', :class => 'tag even') { text "Foo" }
+        a(:href => '#bar', :class => 'tag') { text "Bar" }
       }
       div(:id => "user-links") {
         h1("User Link Section")
         div(:class => "tag-cloud") {
-          a(:href => '#fizz', :class => 'even') { text "Fizz" }
-          a(:href => '#buzz') { text "Buzz" }
+          a(:href => '#fizz', :class => 'tag even') { text "Fizz" }
+          a(:href => '#buzz', :class => 'tag') { text "Buzz" }
         }
       }
     }
@@ -48,49 +48,12 @@ describe Elementor do
       end
     end
     
-    describe "error handling" do
-      context  "before methods have been called on result object" do
-        it "swallows errors" do
-          view = Class.new { def render; send(:foo!) end }.new
-        
-          meta_def(:whoops!) { view.render }
-    
-          proc {
-            @result = elements(:from => :whoops!) do |tag|
-              tag.headers "h1"
-              tag.tags ".tag-cloud a"
-              tag.user_links "#user-links"
-            end
-    
-            @result.instance_variable_get("@this").doc
-          }.should_not raise_error
-        end
-      end
-      
-      context "after methods have been called on result object" do
-        it "re-raises errors that occur when :from blows up" do
-          view = Class.new { def render; send(:foo!) end }.new
-        
-          meta_def(:whoops!) { view.render }
-    
-          proc {
-            @result = elements(:from => :whoops!) do |tag|
-              tag.headers "h1"
-              tag.tags ".tag-cloud a"
-              tag.user_links "#user-links"
-            end
-    
-            result.should have(0).headers
-          }.should raise_error(NoMethodError)
-        end
-      end
-    end
-    
     context "with elements defined" do
       before(:each) do
         @result = elements(:from => :body) do |tag|
           tag.headers "h1"
-          tag.tags ".tag-cloud a"
+          tag.tag_clouds ".tag-cloud"
+          tag.tags "a.tag"
           tag.user_links "#user-links"
         end
       end
@@ -105,10 +68,6 @@ describe Elementor do
         result.search('h1').should have(2).nodes
       end
       
-      it "creates more readable inspect" do
-        result.headers.inspect.should == "[\"A header\", \"User Link Section\"]"
-      end
-      
       describe "chaining selectors" do
         it "can chain selector aliases" do
           result.user_links.headers.should have(1).node
@@ -120,7 +79,7 @@ describe Elementor do
         end
         
         it "works with with_attrs filter" do
-          result.user_links.tags.with_attrs(:class => 'even').should have(1).node          
+          result.user_links.tags.with_attrs(:class => /even/).should have(1).node          
         end
         
         describe "as an rspec matcher" do
@@ -137,18 +96,19 @@ describe Elementor do
           end
           
           it "allows chaining" do
-            result.user_links.should have(1).tags.with_attrs(:class => "even").with_text('Fizz')
+            result.user_links.should have(1).tags.with_attrs(:class => /even/).with_text('Fizz')
           end
         end
       end
       
       describe ":from option" do
         it "determines which method should be called to get the markup" do
-          @result = elements(:from => :body) do |tag|
+          meta_eval { alias_method :other_body, :body }
+          
+          @result = elements(:from => :other_body) do |tag|
             tag.headers "h1"
             tag.tags ".tag-cloud a"
             tag.user_links "#user-links"
-            tag.bodies "body"
           end
           
           result.should have(2).headers
@@ -179,8 +139,12 @@ describe Elementor do
             result.tags.with_text(/foo|bar/i).should have(2).nodes
           end
           
-          it "allows chaining" do
-            result.tags.with_text('zz').with_attrs(:class => "even").should have(1).node
+          it "allows chaining with other filters" do
+            result.tags.with_text('zz').with_attrs(:class => /even/).should have(1).node
+          end
+          
+          it "allows chaining with selector aliases" do
+            result.tag_clouds.with_text('Fizz').tags.should have(2).nodes
           end
 
           describe "as an rspec matcher" do
@@ -197,7 +161,7 @@ describe Elementor do
             end
             
             it "allows chaining" do
-              result.should have(1).tags.with_text("zz").with_attrs(:class => "even")
+              result.should have(1).tags.with_text("zz").with_attrs(:class => /even/)
             end
           end
         end
@@ -206,11 +170,11 @@ describe Elementor do
           context "using string values" do
             it "limits results by one attribute" do
               result.tags.with_attrs(:href => '#foo').should have(1).node
-              result.tags.with_attrs(:class => 'even').should have(2).nodes
+              result.tags.with_attrs(:class => "tag even").should have(2).nodes
             end
           
             it "limits results by multiple attributes" do
-              result.tags.with_attrs(:class => 'even', :href => '#foo').should have(1).node
+              result.tags.with_attrs(:class => /even/, :href => '#foo').should have(1).node
             end
           end
           
@@ -224,8 +188,12 @@ describe Elementor do
             end
           end
           
-          it "allows chaining" do
-            result.tags.with_attrs(:class => 'even').with_text('Fizz').should have(1).node
+          it "allows chaining with other filters" do
+            result.tags.with_attrs(:class => /even/).with_text('Fizz').should have(1).node
+          end
+          
+          it "allows chaining with selector aliases" do
+            result.tag_clouds.with_attrs(:rel => 'other').tags.should have(2).nodes
           end
           
           describe "as an rspec matcher" do
@@ -238,12 +206,49 @@ describe Elementor do
             end
 
             it "works with many matches" do
-              result.should have(2).tags.with_attrs(:class => 'even')
+              result.should have(2).tags.with_attrs(:class => /even/)
             end
             
             it "allows chaining" do
-              result.should have(1).tags.with_attrs(:class => "even").with_text('Fizz')
+              result.should have(1).tags.with_attrs(:class => /even/).with_text('Fizz')
             end
+          end
+        end
+      end
+      describe "error handling" do
+        context  "before methods have been called on result object" do
+          it "swallows errors" do
+            view = Class.new { def render; send(:foo!) end }.new
+
+            meta_def(:whoops!) { view.render }
+
+            proc {
+              @result = elements(:from => :whoops!) do |tag|
+                tag.headers "h1"
+                tag.tags ".tag-cloud a"
+                tag.user_links "#user-links"
+              end
+
+              @result.instance_variable_get("@this").doc
+            }.should_not raise_error
+          end
+        end
+
+        context "after methods have been called on result object" do
+          it "re-raises errors that occur when :from blows up" do
+            view = Class.new { def render; send(:foo!) end }.new
+
+            meta_def(:whoops!) { view.render }
+
+            proc {
+              @result = elements(:from => :whoops!) do |tag|
+                tag.headers "h1"
+                tag.tags ".tag-cloud a"
+                tag.user_links "#user-links"
+              end
+
+              result.should have(0).headers
+            }.should raise_error(NoMethodError)
           end
         end
       end

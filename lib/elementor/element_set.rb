@@ -26,11 +26,7 @@ module Elementor
         end
       end
     end
-    
-    def inspect
-      map(&:text).inspect
-    end
-    
+
     def method_missing(sym, *args, &block)
       result.try(sym, doc, *args) || super
     end
