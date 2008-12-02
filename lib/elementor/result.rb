@@ -22,7 +22,7 @@ module Elementor
     def dispatcher
       @dispatcher ||= blank_context(:this => self) do
         def method_missing(sym, *args, &block)
-          @this.doc_ready = true
+          @this.doc_ready!
           [@this, @this.doc].each do |context|
             next unless context.respond_to?(sym)
             return context.send(sym, *args, &block)
@@ -51,6 +51,10 @@ module Elementor
     # meaning the content method can be called.
     def doc_ready?
       @doc_ready
+    end
+    
+    def doc_ready!
+      @doc_ready = true
     end
 
     private
