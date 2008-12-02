@@ -15,6 +15,8 @@ module Elementor
       end
     end
     
+    alias_method :text, :with_text
+    
     # Attribute filtering using hashes. See the specs for examples.
     def with_attrs(options={})
       filter do |item|
@@ -26,6 +28,8 @@ module Elementor
         end
       end
     end
+    
+    alias_method :attrs, :with_attrs
 
     def method_missing(sym, *args, &block)
       result.try(sym, doc, *args) || super

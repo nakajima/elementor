@@ -143,10 +143,6 @@ describe Elementor do
             result.tags.with_text('zz').with_attrs(:class => /even/).should have(1).node
           end
           
-          it "allows chaining with selector aliases" do
-            result.tag_clouds.with_text('Fizz').tags.should have(2).nodes
-          end
-
           describe "as an rspec matcher" do
             it "works with no matches" do
               result.should have(0).tags.with_text("Wee")
@@ -192,10 +188,6 @@ describe Elementor do
             result.tags.with_attrs(:class => /even/).with_text('Fizz').should have(1).node
           end
           
-          it "allows chaining with selector aliases" do
-            result.tag_clouds.with_attrs(:rel => 'other').tags.should have(2).nodes
-          end
-          
           describe "as an rspec matcher" do
             it "works with no matches" do
               result.should have(0).tags.with_attrs(:href => '#Wee')
@@ -211,6 +203,44 @@ describe Elementor do
             
             it "allows chaining" do
               result.should have(1).tags.with_attrs(:class => /even/).with_text('Fizz')
+            end
+          end
+        end
+        
+        describe "using blocks" do
+          it "filters by text as a block" do
+            result.tags { |with| with.text "Foo" }.should have(1).node
+          end
+          
+          it "filters by attrs as a block" do
+            result.tags { |with| with.attrs(:href => '#foo') }.should have(1).node
+          end
+          
+          it "allows multiple filters as a block" do
+            result.tags { |with|
+              with.text('zz')
+              with.attrs(:class => /even/)
+            }.should have(1).node
+          end
+          
+          describe "as an rspec matcher" do
+            it "works with no matches" do
+              result.should have(0).tags { |with| with.attrs(:href => '#Wee') }
+            end
+
+            it "works with 1 match" do
+              result.should have(1).tags { |with| with.attrs(:href => '#foo') }
+            end
+
+            it "works with many matches" do
+              result.should have(2).tags { |with| with.attrs(:class => /even/) }
+            end
+            
+            it "allows chaining" do
+              result.should(have(1).tags { |with|
+                with.text('Fizz')
+                with.attrs(:class => /even/)
+              })
             end
           end
         end

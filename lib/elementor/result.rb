@@ -64,13 +64,21 @@ module Elementor
     # objects with can be chained and filtered.
     def define_elements!
       element_names.each do |name, selector|
-        meta_def(name) do |*filters|
-          set = ElementSet.new scope(filters).search(selector)
-          set.result = self
-          set.selector = selector
-          filters.empty? ? set : filters.inject(set) { |result, fn| fn[result] }
-        end
+        metaclass.class_eval(<<-END, __FILE__, __LINE__)
+          def #{name}(*filters, &block)
+            make_element_set(#{name.inspect}, #{selector.inspect}, *filters, &block)
+          end
+        END
       end
+    end
+    
+    def make_element_set(name, selector, *filters, &block)
+      set = ElementSet.new scope(filters).search(selector)
+      set.result = self
+      set.selector = selector
+      set = filters.empty? ? set : filters.inject(set) { |result, fn| fn[result] }
+      set = block.call(set) if block_given?
+      set
     end
     
     # Enables the chaining of element selector methods to only search
