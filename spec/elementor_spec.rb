@@ -5,6 +5,10 @@ HTML = Nokogiri::HTML::Builder.new {
     head { title("This is the title") }
     body {
       h1("A header")
+      h2 {
+        text "Version: "
+        span(:rel => "0") { text "1" }
+      }
       div(:class => "tag-cloud", :rel => "other") {
         a(:href => '#foo', :class => 'tag even') { text "Foo" }
         a(:href => '#bar', :class => 'tag') { text "Bar" }
@@ -52,6 +56,7 @@ describe Elementor do
       before(:each) do
         @result = elements(:from => :body) do |tag|
           tag.headers "h1"
+          tag.versions "h2 span"
           tag.tag_clouds ".tag-cloud"
           tag.tags "a.tag"
           tag.user_links "#user-links"
@@ -143,6 +148,10 @@ describe Elementor do
             result.tags.with_text('zz').with_attrs(:class => /even/).should have(1).node
           end
           
+          it "coerces things that aren't strings or regexes into strings" do
+            result.versions.with_text(1).should have(1).node
+          end
+          
           describe "as an rspec matcher" do
             it "works with no matches" do
               result.should have(0).tags.with_text("Wee")
@@ -181,6 +190,12 @@ describe Elementor do
           
             it "limits results by multiple attributes" do
               result.tags.with_attrs(:class => /even/, :href => /#(foo|bar)/).should have(1).node
+            end
+          end
+          
+          context "using non-string, non-regex values" do
+            it "coerces value into strings" do
+              result.versions.with_attrs(:rel => 0).should have(1).node
             end
           end
           

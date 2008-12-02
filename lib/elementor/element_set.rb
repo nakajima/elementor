@@ -11,6 +11,7 @@ module Elementor
         case matcher
         when Regexp then item.text =~ matcher
         when String then item.text.include?(matcher)
+        else item.text.include?(matcher.to_s)
         end
       end
     end
@@ -24,6 +25,7 @@ module Elementor
           case value
           when Regexp then item[key.to_s] =~ value
           when String then item[key.to_s] == value
+          else item[key.to_s] == value.to_s
           end
         end
       end
