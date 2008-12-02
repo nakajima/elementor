@@ -1,8 +1,4 @@
 class Object
-  def try(sym, *args, &block)
-    respond_to?(sym) ? send(sym, *args, &block) : nil
-  end
-  
   def metaclass
     class << self; self end
   end

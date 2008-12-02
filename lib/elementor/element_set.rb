@@ -34,7 +34,7 @@ module Elementor
     alias_method :attrs, :with_attrs
 
     def method_missing(sym, *args, &block)
-      result.try(sym, doc, *args) || super
+      result.respond_to?(sym) ? result.send(sym, doc, *args) : super
     end
     
     def respond_to?(sym)
