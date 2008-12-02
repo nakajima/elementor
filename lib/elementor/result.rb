@@ -23,7 +23,11 @@ module Elementor
       @dispatcher ||= blank_context(:this => self) do
         def method_missing(sym, *args, &block)
           @this.doc_ready = true
-          @this.try(sym, *args, &block) || @this.doc.try(sym, *args, &block) || super
+          [@this, @this.doc].each do |context|
+            next unless context.respond_to?(sym)
+            return context.send(sym, *args, &block)
+          end
+          super
         end
       end
     end
