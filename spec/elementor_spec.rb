@@ -63,7 +63,7 @@ describe Elementor do
         end
       end
       
-      it "can find tags" do
+      it "can find by selector aliases" do
         result.should have(2).headers
         result.should have(4).tags
       end
@@ -71,6 +71,12 @@ describe Elementor do
       it "can still use old Nokogiri traversal methods" do
         result.search('.tag-cloud a').should have(4).nodes
         result.search('h1').should have(2).nodes
+      end
+      
+      it "raises when method doesn't exist" do
+        proc {
+          result.bugs
+        }.should raise_error(NoMethodError)
       end
       
       describe "chaining selectors" do
