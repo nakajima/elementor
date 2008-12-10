@@ -27,7 +27,7 @@ module Elementor
             next unless context.respond_to?(sym)
             return context.send(sym, *args, &block)
           end
-          super
+          super # raise NoMethodError if no context can handle
         end
       end
     end
