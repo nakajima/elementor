@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
     "lib/elementor/element_set.rb",
     "lib/elementor/result.rb",
     "lib/core_ext",
+    "lib/core_ext/array.rb",
     "lib/core_ext/object.rb",
     "lib/core_ext/kernel.rb",
     "lib/core_ext/symbol.rb"
