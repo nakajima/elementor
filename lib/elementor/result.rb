@@ -81,7 +81,7 @@ module Elementor
     end
     
     def make_element_set(name, selector, *filters, &block)
-      set = ElementSet.new scope(filters).search(selector)
+      set = ElementSet.new(doc, scope(filters).search(selector))
       set.result = self
       set.selector = selector
       set = filters.empty? ? set : filters.inject(set) { |result, fn| fn[result] }

@@ -7,8 +7,8 @@ module Elementor
       end
     end
 
-    def initialize(array)
-      @node_set = Nokogiri::XML::NodeSet.new(nil, array)
+    def initialize(document, array)
+      @node_set = Nokogiri::XML::NodeSet.new(document, array)
     end
 
     def length
@@ -21,7 +21,11 @@ module Elementor
     end
 
     def replace(array)
-      @node_set = Nokogiri::XML::NodeSet.new(nil, array)
+      @node_set = Nokogiri::XML::NodeSet.new(@node_set.document, array)
+    end
+
+    def search(selector)
+      @node_set.search(selector)
     end
   end
 
@@ -63,7 +67,7 @@ module Elementor
     alias_method :attrs, :with_attrs
 
     def method_missing(sym, *args, &block)
-      result.respond_to?(sym) ? result.send(sym, doc, *args) : super
+      result.respond_to?(sym) ? result.send(sym, self, *args) : super
     end
     
     def respond_to?(sym)
