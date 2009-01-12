@@ -1,7 +1,36 @@
 module Elementor
+
+  module NodeSet
+    def self.included(base)
+      base.class_eval do
+        attr_accessor :node_set
+      end
+    end
+
+    def initialize(array)
+      @node_set = Nokogiri::XML::NodeSet.new(nil, array)
+    end
+
+    def length
+      node_set.length
+    end
+    alias_method :size, :length
+
+    def select(&block)
+      @node_set.select &block
+    end
+
+    def replace(array)
+      @node_set = Nokogiri::XML::NodeSet.new(nil, array)
+    end
+  end
+
   # ElementSet objects wrap a Nokogiri #search result and
   # add additional functionality such as chained filtering.
-  class ElementSet < Array
+  class ElementSet
+
+    include NodeSet
+
     attr_accessor :result, :selector
     
     # A simple filter for selecting only elements with content
