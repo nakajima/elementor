@@ -150,8 +150,8 @@ describe Elementor do
             result.tags.with_text(/foo|bar/i).should have(2).nodes
           end
           
-          it "allows chaining with other filters" do
-            result.tags.with_text('zz').with_attrs(:class => /even/).should have(1).node
+          it "allows chaining with selector aliases" do
+            result.tag_clouds.with_text('Fizz').tags.should have(2).nodes
           end
           
           it "allows chaining with selector aliases" do
@@ -207,6 +207,10 @@ describe Elementor do
             it "coerces value into strings" do
               result.versions.with_attrs(:rel => 0).should have(1).node
             end
+          end
+          
+          it "allows chaining with selector aliases" do
+            result.tag_clouds.with_attrs(:rel => 'other').tags.should have(2).nodes
           end
           
           it "allows chaining with other filters" do
