@@ -154,6 +154,10 @@ describe Elementor do
             result.tags.with_text('zz').with_attrs(:class => /even/).should have(1).node
           end
           
+          it "allows chaining with selector aliases" do
+            result.tag_clouds.with_attrs(:rel => 'other').tags.should have(2).nodes
+          end
+
           it "coerces things that aren't strings or regexes into strings" do
             result.versions.with_text(1).should have(1).node
           end
