@@ -45,10 +45,10 @@ module Elementor
     def doc(markup=nil)
       if html = markup || content
         @doc = nil if markup
-        parser = opts[:as] ? opts[:as].to_s : nil
+        parser = opts[:as].to_sym rescue nil
         @doc ||= case parser
-                 when nil, 'html' then Nokogiri::HTML(html)
-                 when 'xml' then Nokogiri::XML(html)
+                 when nil, :html then Nokogiri::HTML(html)
+                 when :xml       then Nokogiri::XML(html)
                  else raise InvalidParser.new("Nokogiri cannot parse as '#{opts[:as]}'. Please request :xml or :html.")
                  end
       end
