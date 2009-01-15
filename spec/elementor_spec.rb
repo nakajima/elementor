@@ -79,6 +79,16 @@ describe Elementor do
         }.should raise_error(NoMethodError)
       end
       
+      describe "delegating to NodeSet" do
+        it "supports #first" do
+          result.tags.first.text.should == "Foo"
+        end
+        
+        it "responds to #empty?" do
+          result.tags.with_text("none-ya").should be_empty
+        end
+      end
+      
       describe "chaining selectors" do
         it "can chain selector aliases" do
           result.user_links.headers.should have(1).node

@@ -11,11 +11,6 @@ module Elementor
       @node_set = Nokogiri::XML::NodeSet.new(document, array)
     end
 
-    def length
-      node_set.length
-    end
-    alias_method :size, :length
-
     def select(&block)
       @node_set.select &block
     end
@@ -24,8 +19,17 @@ module Elementor
       @node_set = Nokogiri::XML::NodeSet.new(@node_set.document, array)
     end
 
-    def search(selector)
-      @node_set.search(selector)
+    def respond_to?(sym)
+      super || @node_set.respond_to?(sym)
+    end
+
+    # Delegates non-ElementSet methods to the NodeSet
+    def method_missing(sym, *args, &block)
+      if @node_set.respond_to?(sym)
+        @node_set.send(sym, *args, &block)
+      else
+        super
+      end
     end
   end
 
