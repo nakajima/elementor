@@ -1,4 +1,6 @@
 module Elementor
+  class InvalidParser < ArgumentError ; end
+
   class Result
     attr_writer :doc_ready
     attr_reader :context, :opts
@@ -43,7 +45,12 @@ module Elementor
     def doc(markup=nil)
       if html = markup || content
         @doc = nil if markup
-        @doc ||= Nokogiri(html)
+        parser = opts[:as] ? opts[:as].to_s : nil
+        @doc ||= case parser
+                 when nil, 'html' then Nokogiri::HTML(html)
+                 when 'xml' then Nokogiri::XML(html)
+                 else raise InvalidParser.new("Nokogiri cannot parse as '#{opts[:as]}'. Please request :xml or :html.")
+                 end
       end
     end
     
