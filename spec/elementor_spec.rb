@@ -79,6 +79,16 @@ describe Elementor do
         }.should raise_error(NoMethodError)
       end
       
+      describe "delegating to NodeSet" do
+        it "supports #first" do
+          result.tags.first.text.should == "Foo"
+        end
+        
+        it "responds to #empty?" do
+          result.tags.with_text("none-ya").should be_empty
+        end
+      end
+      
       describe "chaining selectors" do
         it "can chain selector aliases" do
           result.user_links.headers.should have(1).node
@@ -155,7 +165,7 @@ describe Elementor do
           end
           
           it "allows chaining with selector aliases" do
-            result.tag_clouds.with_attrs(:rel => 'other').tags.should have(2).nodes
+            result.tag_clouds.with_text('Fizz').tags.should have(2).nodes
           end
 
           it "coerces things that aren't strings or regexes into strings" do
@@ -207,6 +217,10 @@ describe Elementor do
             it "coerces value into strings" do
               result.versions.with_attrs(:rel => 0).should have(1).node
             end
+          end
+          
+          it "allows chaining with selector aliases" do
+            result.tag_clouds.with_attrs(:rel => 'other').tags.should have(2).nodes
           end
           
           it "allows chaining with other filters" do
