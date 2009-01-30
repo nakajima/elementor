@@ -42,15 +42,14 @@ module Elementor
 
     # Returns the raw Nokogiri doc once a method has been called
     # on the dispatcher. Up until that point, returns nil.
-    def doc(markup=nil)
-      if html = markup || content
-        @doc = nil if markup
-        parser = opts[:as].to_sym rescue nil
-        @doc ||= case parser
-                 when nil, :html then Nokogiri::HTML(html)
-                 when :xml       then Nokogiri::XML(html)
-                 else raise InvalidParser.new("Nokogiri cannot parse as '#{opts[:as]}'. Please request :xml or :html.")
-                 end
+    def doc(new_markup=nil)
+      if markup = new_markup || content
+        @doc = nil if new_markup
+        @doc ||= case parser.to_sym
+        when :xml then Nokogiri::XML(markup)
+        when :html then Nokogiri::HTML(markup)
+        else raise InvalidParser.new("Nokogiri cannot parse as '#{parser.inspect}'. Please request :xml or :html.")
+        end
       end
     end
     
@@ -65,6 +64,10 @@ module Elementor
     end
 
     private
+    
+    def parser
+      opts[:as] || :html
+    end
     
     # Blank slate context for defining element names.
     def naming_context
