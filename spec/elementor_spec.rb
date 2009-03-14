@@ -193,6 +193,19 @@ describe Elementor do
             result.should have(2).headers
             result.should have(4).tags
           end
+
+          it "calls the proc to get the markup" do
+            meta_eval { alias_method :other_body, :body }
+            
+            @result = elements(:from => proc { other_body }) do |tag|
+              tag.headers "h1"
+              tag.tags ".tag-cloud a"
+              tag.user_links "#user-links"
+            end
+            
+            result.should have(2).headers
+            result.should have(4).tags
+          end
           
           it "works when the HTML isn't present until after the #elements call" do
             mock(self).deferred_source.once.returns(HTML_DOCUMENT.dup)

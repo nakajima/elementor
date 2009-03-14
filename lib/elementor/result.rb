@@ -108,7 +108,16 @@ module Elementor
     
     def content
       return unless doc_ready?
-      @content ||= context.send(opts[:from] || :body)
+      @content ||= content_from
+    end
+
+    def content_from
+      from = opts[:from] || :body
+      if from.is_a?(Proc)
+        from.call
+      else
+        context.send(from)
+      end
     end
   end
 end
