@@ -412,7 +412,7 @@ describe Elementor do
 
     describe "the fragment" do
       it "has two tags" do
-        Nokogiri::HTML.fragment(body).should have(2).nodes
+        Nokogiri::HTML.fragment(body).children.should have(2).nodes
       end
     end
 

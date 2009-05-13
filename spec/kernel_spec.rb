@@ -27,7 +27,7 @@ describe "blank_context" do
   
   it "allows a white list regex" do
     proc {
-      context = blank_context(/=/)
+      context = blank_context(%r/=/)
       context == context
       context === context
     }.should_not raise_error
